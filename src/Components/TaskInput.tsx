@@ -1,9 +1,10 @@
 import React, { useState, useContext } from 'react';
-import { View, TextInput, Button, StyleSheet, Platform, Text, TouchableOpacity } from 'react-native';
+import { View, TextInput, Button, StyleSheet, Platform, Text, TouchableOpacity, Alert } from 'react-native';
 import { TaskContext } from '../context/TaskContext';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { supabase } from '../supabaseClient'; // Import Supabase client
 
 type RootStackParamList = {
   TaskList: undefined;
@@ -32,10 +33,17 @@ const TaskInput: React.FC<TaskInputProps> = ({ navigation }) => {
 
   const { addTask } = taskContext;
 
-  const handleAddTask = () => {
-    if (task) {
-      const createdAt = new Date(); // Get the current date and time
-      addTask({ text: task, date: deadline, createdAt });
+  const handleAddTask = async () => {
+    const createdAt = new Date();
+    const { data, error } = await supabase
+      .from('tasks')
+      .insert([{ text: task, date: deadline?.toISOString(), createdat: createdAt.toISOString() }]);
+
+    if (error) {
+      Alert.alert('Error', 'There was an error adding the task.');
+      console.error('Error adding task:', error);
+    } else {
+      addTask({ text: task, date: deadline, createdat :createdAt });
       navigation.goBack();
     }
   };

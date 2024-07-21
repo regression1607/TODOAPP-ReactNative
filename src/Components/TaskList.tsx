@@ -1,39 +1,45 @@
-import React, { useContext } from 'react';
-import { View, Button, FlatList, StyleSheet } from 'react-native';
-import { TaskContext } from '../context/TaskContext';
-import TaskItem from './TaskItem';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { RouteProp } from '@react-navigation/native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { View, Text, Button, FlatList, StyleSheet, Alert } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native'; // Import useFocusEffect
+import { supabase } from '../supabaseClient'; // Import Supabase client
 
-type RootStackParamList = {
-  TaskList: undefined;
-  TaskInput: undefined;
-};
+const TaskList: React.FC = ({ navigation }) => {
+  const [tasks, setTasks] = useState<any[]>([]);
 
-type TaskListScreenNavigationProp = StackNavigationProp<RootStackParamList, 'TaskList'>;
-type TaskListScreenRouteProp = RouteProp<RootStackParamList, 'TaskList'>;
+  const fetchTasks = async () => {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*');
 
-interface TaskListProps {
-  navigation: TaskListScreenNavigationProp;
-  route: TaskListScreenRouteProp;
-}
+    if (error) {
+      console.error('Error fetching tasks:', error);
+      Alert.alert('Error', 'There was a problem fetching the tasks.');
+    } else {
+      setTasks(data || []);
+    }
+  };
 
-const TaskList: React.FC<TaskListProps> = ({ navigation }) => {
-  const taskContext = useContext(TaskContext);
-
-  if (!taskContext) {
-    throw new Error('TaskContext must be used within a TaskProvider');
-  }
-
-  const { tasks } = taskContext;
+  useFocusEffect(
+    useCallback(() => {
+      fetchTasks();
+    }, [])
+  );
 
   return (
     <View style={styles.container}>
       <Button title="Add Task" onPress={() => navigation.navigate('TaskInput')} />
       <FlatList
         data={tasks}
-        keyExtractor={(item, index) => index.toString()}
-        renderItem={({ item }) => <TaskItem task={item} />}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.taskContainer}>
+            <Text style={styles.taskText}>{item.text}</Text>
+            <Text style={styles.createddateText}>Created At: {new Date(item.createdat).toLocaleString()}</Text>
+            {item.date && (
+              <Text style={styles.deadlinedateText}>Deadline: {new Date(item.date).toLocaleString()}</Text>
+            )}
+          </View>
+        )}
       />
     </View>
   );
@@ -44,6 +50,23 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+  taskContainer: {
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+  },
+  taskText: {
+    fontSize: 18,
+    color: 'black',
+  },
+  createddateText: {
+    fontSize: 14,
+    color: 'green',
+  },
+    deadlinedateText: {
+        fontSize: 14,
+        color: 'red',
+    },
 });
 
 export default TaskList;

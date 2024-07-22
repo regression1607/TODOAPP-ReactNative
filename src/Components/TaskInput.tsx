@@ -43,7 +43,7 @@ const TaskInput: React.FC<TaskInputProps> = ({ navigation }) => {
       Alert.alert('Error', 'There was an error adding the task.');
       console.error('Error adding task:', error);
     } else {
-      addTask({ text: task, date: deadline, createdat :createdAt });
+      addTask({ text: task, date: deadline, createdat: createdAt });
       navigation.goBack();
     }
   };
@@ -75,13 +75,13 @@ const TaskInput: React.FC<TaskInputProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <TextInput
-        style={[styles.input, { color: 'black' }]}
+        style={styles.input}
         placeholder="Enter task"
-        placeholderTextColor="gray"
+        placeholderTextColor="#888"
         value={task}
         onChangeText={setTask}
       />
-      <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+      <TouchableOpacity onPress={() => setShowDatePicker(true)} style={styles.dateButton}>
         <Text style={styles.dateButtonText}>
           Set Deadline: {deadline ? deadline.toLocaleString() : 'Select Date and Time'}
         </Text>
@@ -102,7 +102,9 @@ const TaskInput: React.FC<TaskInputProps> = ({ navigation }) => {
           onChange={handleTimeChange}
         />
       )}
-      <Button title="Add Task" onPress={handleAddTask} />
+      <TouchableOpacity style={styles.addButton} onPress={handleAddTask}>
+        <Text style={styles.addButtonText}>Add Task</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -110,20 +112,38 @@ const TaskInput: React.FC<TaskInputProps> = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f9f9f9',
+    padding: 20,
     justifyContent: 'center',
-    padding: 16,
   },
   input: {
-    height: 40,
-    borderColor: 'gray',
+    height: 50,
+    borderColor: '#ddd',
     borderWidth: 1,
-    marginBottom: 12,
-    paddingHorizontal: 8,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    marginBottom: 20,
+    backgroundColor: '#fff',
+    fontSize: 16,
+    color: '#333',
+  },
+  dateButton: {
+    marginBottom: 20,
   },
   dateButtonText: {
     fontSize: 16,
-    color: 'blue',
-    marginBottom: 12,
+    color: '#007bff',
+  },
+  addButton: {
+    backgroundColor: '#007bff',
+    padding: 12,
+    borderRadius: 8,
+    alignItems: 'center',
+  },
+  addButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 

@@ -10,17 +10,16 @@ const CalendarScreen: React.FC = () => {
 
   // Fetch tasks for a specific day
   const fetchTasksForDate = async (date: string) => {
-    // Format the date to match the format used in the database
     const startOfDay = `${date}T00:00:00Z`;
     const endOfDay = `${date}T23:59:59Z`;
 
     const { data, error } = await supabase
       .from('tasks')
       .select('*')
-      .gte('date', startOfDay) // Greater than or equal to the start of the day
-      .lte('date', endOfDay); // Less than or equal to the end of the day
+      .gte('date', startOfDay)
+      .lte('date', endOfDay);
 
-    console.log('Fetched fetchTasksForDate :', data); // Debugging line
+    console.log('Fetched fetchTasksForDate :', data);
 
     if (error) {
       console.error('Error fetching tasks:', error);
@@ -28,7 +27,6 @@ const CalendarScreen: React.FC = () => {
     } else {
       setTasks(data || []);
       
-      // Show tasks in an alert
       const taskMessages = (data && data.length > 0)
         ? data.map((task: any) =>
             `- ${task.text}\nCreated At: ${new Date(task.createdat).toLocaleString()}\nDeadline: ${task.date ? new Date(task.date).toLocaleString() : 'None'}`
@@ -44,10 +42,10 @@ const CalendarScreen: React.FC = () => {
     const { data, error } = await supabase
       .from('tasks')
       .select('*')
-      .gte('date', startDate) // Greater than or equal to the start date
-      .lte('date', endDate); // Less than or equal to the end date
+      .gte('date', startDate)
+      .lte('date', endDate);
 
-    console.log('Fetched data:', data); // Debugging line
+    console.log('Fetched data:', data);
 
     if (error) {
       console.error('Error fetching tasks:', error);
@@ -62,25 +60,16 @@ const CalendarScreen: React.FC = () => {
     const updatedMarkedDates: any = {};
 
     tasks.forEach((task: any) => {
-      const date = task.date.split('T')[0]; // Get the date part (YYYY-MM-DD)
+      const date = task.date.split('T')[0];
       const dotColor = task.completed ? 'green' : 'red';
 
-      if (updatedMarkedDates[date]) {
-        // If a date already exists, ensure it's marked correctly
-        updatedMarkedDates[date] = {
-          ...updatedMarkedDates[date],
-          dotColor: dotColor === 'green' ? 'green' : updatedMarkedDates[date].dotColor,
-        };
-      } else {
-        updatedMarkedDates[date] = {
-          marked: true,
-          dotColor: dotColor,
-          activeOpacity: 0,
-        };
-      }
+      updatedMarkedDates[date] = {
+        marked: true,
+        dotColor: dotColor,
+        activeOpacity: 0,
+      };
     });
 
-    // Handle dates with no tasks
     const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
     for (let day = 1; day <= daysInMonth; day++) {
       const date = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
@@ -101,14 +90,11 @@ const CalendarScreen: React.FC = () => {
     const startOfMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-01`;
     const endOfMonth = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate()}`;
 
-    // Fetch tasks for the current month
     fetchTasksForMonth(startOfMonth, endOfMonth);
   }, []);
 
   const handleDayPress = async (day: any) => {
     const selectedDate = day.dateString;
-
-    // Fetch tasks for the selected date
     await fetchTasksForDate(selectedDate);
   };
 
@@ -120,9 +106,28 @@ const CalendarScreen: React.FC = () => {
         minDate={'2023-01-01'}
         maxDate={'2025-12-31'}
         monthFormat={'MMM yyyy'}
-        markedDates={markedDates} // Use the updated markedDates
+        markedDates={markedDates}
         onDayPress={handleDayPress}
         style={styles.calendar}
+        theme={{
+          calendarBackground: '#ffffff',
+          textSectionTitleColor: '#b6c1cd',
+          selectedDayBackgroundColor: '#00adf5',
+          selectedDayTextColor: '#ffffff',
+          todayTextColor: '#00adf5',
+          dayTextColor: '#2d4150',
+          textDisabledColor: '#d9e1e8',
+          dotColor: '#00adf5',
+          arrowColor: '#00adf5',
+          monthTextColor: '#00adf5',
+          indicatorColor: '#00adf5',
+          textMonthFontWeight: 'bold',
+          textDayFontWeight: 'bold',
+          textDayHeaderFontWeight: '300',
+          textDayFontSize: 16,
+          textMonthFontSize: 18,
+          textDayHeaderFontSize: 14,
+        }}
       />
     </View>
   );
@@ -132,15 +137,25 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f5f5',
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: 'bold',
+    color: '#333',
     marginBottom: 16,
+    textAlign: 'center',
   },
   calendar: {
-    marginBottom: 10,
+    borderRadius: 10,
+    overflow: 'hidden',
+    borderColor: '#ddd',
+    borderWidth: 1,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
   },
 });
 

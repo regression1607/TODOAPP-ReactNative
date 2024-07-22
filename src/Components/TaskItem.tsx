@@ -29,19 +29,28 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    padding: 15,
+    margin: 10,
+    borderRadius: 10,
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3, // for Android shadow
   },
   text: {
     fontSize: 16,
+    fontWeight: '500',
+    color: '#333',
   },
   deadlineText: {
-    color: 'red',
+    color: '#d9534f', // red color for deadline
   },
   dateText: {
-    fontSize: 12,
-    color: 'gray',
+    fontSize: 14,
+    color: '#666',
+    marginTop: 5,
   },
 });
 

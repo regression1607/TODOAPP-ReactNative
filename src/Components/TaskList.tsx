@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, Button, FlatList, StyleSheet, Alert , TouchableOpacity} from 'react-native';
+import { View, Text, Button, FlatList, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native'; // Import useFocusEffect
 import { supabase } from '../supabaseClient'; // Import Supabase client
-import CalendarScreen  from './CalendarScreen';
-import NewsScreen from './NewsScreen';
-const TaskList: React.FC = ({ navigation }) => {
+
+const TaskList: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [tasks, setTasks] = useState<any[]>([]);
 
   const fetchTasks = async () => {
@@ -42,19 +41,23 @@ const TaskList: React.FC = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Button title="Add Task" onPress={() => navigation.navigate('TaskInput')} />
+      <Button
+        title="Add Task"
+        onPress={() => navigation.navigate('TaskInput')}
+        color="#007BFF"
+      />
       <FlatList
         data={tasks}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.taskContainer}>
             <Text style={styles.taskText}>{item.text}</Text>
-            <Text style={styles.createddateText}>Created At: {new Date(item.createdat).toLocaleString()}</Text>
+            <Text style={styles.createdDateText}>Created At: {new Date(item.createdat).toLocaleString()}</Text>
             {item.date && (
-              <Text style={styles.deadlinedateText}>Deadline: {new Date(item.date).toLocaleString()}</Text>
+              <Text style={styles.deadlineDateText}>Deadline: {new Date(item.date).toLocaleString()}</Text>
             )}
             <TouchableOpacity
-              style={styles.toggleButton}
+              style={[styles.toggleButton, item.completed && styles.toggleButtonCompleted]}
               onPress={() => toggleTaskCompletion(item.id, item.completed)}
             >
               <Text style={styles.toggleButtonText}>
@@ -63,19 +66,20 @@ const TaskList: React.FC = ({ navigation }) => {
             </TouchableOpacity>
           </View>
         )}
+        contentContainerStyle={styles.listContent}
       />
-       <View style={styles.footer}>
+      <View style={styles.footer}>
         <TouchableOpacity
           style={styles.footerButton}
-          onPress={() => navigation.navigate('CalendarScreen')} // Navigate to Calendar screen
+          onPress={() => navigation.navigate('CalendarScreen')}
         >
-          <Text style={styles.footerButtonText}>Go to Calendar</Text>
+          <Text style={styles.footerButtonText}>Calendar</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.footerButton}
-          onPress={() => navigation.navigate('NewsScreen')} // Navigate to News screen
+          onPress={() => navigation.navigate('NewsScreen')}
         >
-          <Text style={styles.footerButtonText}>Go to News</Text>
+          <Text style={styles.footerButtonText}>News</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -86,59 +90,75 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
+    backgroundColor: '#f4f4f4',
   },
   taskContainer: {
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    padding: 15,
+    marginBottom: 10,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3, // for Android shadow
   },
   taskText: {
     fontSize: 18,
-    color: 'black',
+    color: '#333',
+    fontWeight: '500',
   },
-  createddateText: {
+  createdDateText: {
     fontSize: 14,
-    color: 'green',
+    color: '#555',
+    marginTop: 4,
   },
-    deadlinedateText: {
-        fontSize: 14,
-        color: 'red',
-    },
-    toggleButton: {
-      marginTop: 8,
-      padding: 8,
-      backgroundColor: '#007BFF',
-      borderRadius: 4,
-    },
-    toggleButtonText: {
-      color: 'white',
-      textAlign: 'center',
-    },
-    footer: {
-      position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      paddingHorizontal: 16,
-      paddingVertical: 8,
-      backgroundColor: '#f8f8f8',
-      borderTopWidth: 1,
-      borderTopColor: '#ddd',
-    },
-    footerButton: {
-      flex: 1,
-      marginHorizontal: 4,
-      padding: 12,
-      backgroundColor: '#007BFF',
-      borderRadius: 4,
-      alignItems: 'center',
-    },
-    footerButtonText: {
-      color: 'white',
-      fontSize: 16,
-    },
+  deadlineDateText: {
+    fontSize: 14,
+    color: '#d9534f', // red color for deadline
+    marginTop: 4,
+  },
+  toggleButton: {
+    marginTop: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    backgroundColor: '#007BFF',
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  toggleButtonCompleted: {
+    backgroundColor: '#28a745', // green for completed
+  },
+  toggleButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#ddd',
+  },
+  footerButton: {
+    flex: 1,
+    marginHorizontal: 5,
+    padding: 12,
+    backgroundColor: '#007BFF',
+    borderRadius: 5,
+    alignItems: 'center',
+  },
+  footerButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  listContent: {
+    paddingBottom: 70, // Ensure there's space for footer
+  },
 });
 
 export default TaskList;

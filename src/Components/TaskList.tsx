@@ -15,7 +15,17 @@ const TaskList: React.FC<{ navigation: any }> = ({ navigation }) => {
       console.error('Error fetching tasks:', error);
       Alert.alert('Error', 'There was a problem fetching the tasks.');
     } else {
-      setTasks(data || []);
+      const today = new Date();
+      const startOfDay = new Date(today.setHours(0, 0, 0, 0)); // Start of today
+      const endOfDay = new Date(today.setHours(23, 59, 59, 999)); // End of today
+
+      // Filter tasks created today
+      const filteredTasks = data?.filter((task: any) => {
+        const taskDate = new Date(task.createdat);
+        return taskDate >= startOfDay && taskDate <= endOfDay;
+      }) || [];
+
+      setTasks(filteredTasks);
     }
   };
 
@@ -46,28 +56,34 @@ const TaskList: React.FC<{ navigation: any }> = ({ navigation }) => {
         onPress={() => navigation.navigate('TaskInput')}
         color="#007BFF"
       />
-      <FlatList
-        data={tasks}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => (
-          <View style={styles.taskContainer}>
-            <Text style={styles.taskText}>{item.text}</Text>
-            <Text style={styles.createdDateText}>Created At: {new Date(item.createdat).toLocaleString()}</Text>
-            {item.date && (
-              <Text style={styles.deadlineDateText}>Deadline: {new Date(item.date).toLocaleString()}</Text>
-            )}
-            <TouchableOpacity
-              style={[styles.toggleButton, item.completed && styles.toggleButtonCompleted]}
-              onPress={() => toggleTaskCompletion(item.id, item.completed)}
-            >
-              <Text style={styles.toggleButtonText}>
-                {item.completed ? 'Mark as Incomplete' : 'Mark as Complete'}
-              </Text>
-            </TouchableOpacity>
-          </View>
-        )}
-        contentContainerStyle={styles.listContent}
-      />
+      {tasks.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Alien 🐿️ Please create your today's task</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={tasks}
+          keyExtractor={(item) => item.id.toString()}
+          renderItem={({ item }) => (
+            <View style={styles.taskContainer}>
+              <Text style={styles.taskText}>{item.text}</Text>
+              <Text style={styles.createdDateText}>Created At: {new Date(item.createdat).toLocaleString()}</Text>
+              {item.date && (
+                <Text style={styles.deadlineDateText}>Deadline: {new Date(item.date).toLocaleString()}</Text>
+              )}
+              <TouchableOpacity
+                style={[styles.toggleButton, item.completed && styles.toggleButtonCompleted]}
+                onPress={() => toggleTaskCompletion(item.id, item.completed)}
+              >
+                <Text style={styles.toggleButtonText}>
+                  {item.completed ? 'Mark as Incomplete' : 'Mark as Complete'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          )}
+          contentContainerStyle={styles.listContent}
+        />
+      )}
       <View style={styles.footer}>
         <TouchableOpacity
           style={styles.footerButton}
@@ -158,6 +174,17 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: 70, // Ensure there's space for footer
+  },
+  emptyContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  emptyText: {
+    fontSize: 18,
+    color: '#333',
+    fontWeight: '500',
+    textAlign: 'center',
   },
 });
 
